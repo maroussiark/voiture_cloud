@@ -55,6 +55,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>cloud</groupId>
+			<artifactId>DAO</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/DAO.jar</systemPath>
+		</dependency>
 	</dependencies>
 
 	<build>
