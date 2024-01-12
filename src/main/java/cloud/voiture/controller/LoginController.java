@@ -12,11 +12,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import cloud.voiture.authentification.JwtUtil;
 import cloud.voiture.model.Utilisateur;
@@ -26,8 +28,9 @@ import cloud.voiture.model.response.LoginRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-@Controller
+@RestController
 @RequestMapping("/rest/auth")
+@CrossOrigin(origins = "*",allowedHeaders = "*")
 public class LoginController {
     private final AuthenticationManager authenticationManager;
 
