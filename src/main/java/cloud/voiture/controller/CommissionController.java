@@ -1,6 +1,7 @@
 package cloud.voiture.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import cloud.voiture.model.Commission;
 import cloud.voiture.model.ResponseWrap;
 import cloud.voiture.repository.CommissionRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 @RestController
 @RequestMapping("/admin/commission")
-@CrossOrigin(origins = "*",allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CommissionController {
 
     @Autowired
@@ -29,7 +35,7 @@ public class CommissionController {
 
     @GetMapping("/")
     public ResponseEntity<ResponseWrap<List<Commission>>> getAllCarburant() {
-        return new ResponseEntity<>(ResponseWrap.success(commissionRepository.findAll()),HttpStatus.OK);
+        return new ResponseEntity<>(ResponseWrap.success(commissionRepository.findAll()), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -45,7 +51,7 @@ public class CommissionController {
 
     }
 
-    @PostMapping("/") 
+    @PostMapping("/")
     public Commission createCommission(@RequestBody Commission commission) {
         return commissionRepository.save(commission);
     }
@@ -55,8 +61,21 @@ public class CommissionController {
             throws Exception {
         if (commissionRepository.existsById((long) id)) {
             commission.setId((long) id);
-            return ResponseWrap.success(commissionRepository.saveAndFlush(commission));
-        }else {
+            try {
+                return ResponseWrap.success(commissionRepository.saveAndFlush(commission));
+            } catch (Exception e) {
+                // TODO: handle exception
+                if (e instanceof ConstraintViolationException) {
+                    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                    Validator validator = factory.getValidator();
+                    Set<ConstraintViolation<Commission>> violations = validator.validate(commission);
+                    for (ConstraintViolation<Commission> constraintViolation : violations) {
+                        throw new Exception(constraintViolation.getMessageTemplate());
+                    }
+                }
+                throw e;
+            }
+        } else {
             return ResponseWrap.error("Le type de commission n'existe pas");
         }
     }
