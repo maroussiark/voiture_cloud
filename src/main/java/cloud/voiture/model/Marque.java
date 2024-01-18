@@ -1,9 +1,13 @@
 package cloud.voiture.model;
 
+import org.springframework.boot.context.properties.bind.DefaultValue;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Marque {
@@ -11,18 +15,23 @@ public class Marque {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String libelle;
-    private int idPays;
+    @ManyToOne
+    @JoinColumn(name="idpays") // tsy mety vo idPays
+    private Pays pays;
     private int etat;
+
+    public Marque(int id, String libelle, Pays pays, int etat) {
+        this.id = id;
+        this.libelle = libelle;
+        this.pays = pays;
+        this.etat = etat;
+    }
+
 
     public Marque() {
     }
     
-    public Marque(int id, String libelle, int idPays, int etat) {
-        this.id = id;
-        this.libelle = libelle;
-        this.idPays = idPays;
-        this.etat = etat;
-    }
+   
 
     public int getId() {
         return id;
@@ -40,13 +49,7 @@ public class Marque {
         this.libelle = libelle;
     }
 
-    public int getIdPays() {
-        return idPays;
-    }
-
-    public void setIdPays(int idPays) {
-        this.idPays = idPays;
-    }
+    
 
     public int getEtat() {
         return etat;
@@ -54,6 +57,18 @@ public class Marque {
 
     public void setEtat(int etat) {
         this.etat = etat;
+    }
+
+
+
+    public Pays getPays() {
+        return pays;
+    }
+
+
+
+    public void setPays(Pays pays) {
+        this.pays = pays;
     }
 
     

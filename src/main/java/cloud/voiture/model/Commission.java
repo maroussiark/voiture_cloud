@@ -20,10 +20,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 
 @Entity
+
 public class Commission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @DecimalMin(value = "0.0", inclusive = false, message = "La valeur minimale doit être supérieur à 0")
+    double min;
+    double max;
 
     @NotNull(message = "Le champ valeur ne peut pas être nul")
     @DecimalMin(value = "0.0", inclusive = false, message = "La valeur doit être supérieur à 0")
@@ -31,7 +36,7 @@ public class Commission {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Temporal(TemporalType.DATE)
-    @PastOrPresent( message = "La date doit etre anterieur ou egale a aujourd'hui")
+    @PastOrPresent(message = "La date doit etre anterieur ou egale a aujourd'hui")
     Date dates;
 
     int etat;
@@ -45,6 +50,49 @@ public class Commission {
         this.dates = dates;
         this.etat = etat;
     }
+
+
+    public Commission(Long id, double min, double max, double valeur, Date dates, int etat) throws Exception{
+        this.id = id;
+        this.min = min;
+        this.max = max;
+        this.valeur = valeur;
+        this.dates = dates;
+        this.etat = etat;
+    }
+
+    public double getMin() {
+        return this.min;
+    }
+
+    public void setMin(double min) throws Exception{
+        
+        this.min = min;
+    }
+
+    public double getMax() {
+        return this.max;
+    }
+
+    public void setMax(double max) throws Exception{
+        if(max < min){
+            throw new Exception("Valeur maximale doit etre superieur a la valeur minimale");
+        }
+
+        
+        this.max = max;
+    }
+
+    public Commission min(double min) throws Exception {
+        setMin(min);
+        return this;
+    }
+
+    public Commission max(double max)throws Exception {
+        setMax(max);
+        return this;
+    }
+
 
     public Long getId() {
         return this.id;
@@ -138,5 +186,7 @@ public class Commission {
             this.dates = new Date();
         }
     }
+
+    
 
 }

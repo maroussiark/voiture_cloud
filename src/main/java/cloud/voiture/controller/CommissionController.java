@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cloud.voiture.model.Commission;
 import cloud.voiture.model.ResponseWrap;
 import cloud.voiture.repository.CommissionRepository;
+import cloud.voiture.service.AnnonceService;
+import cloud.voiture.service.CommissionService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
@@ -32,6 +34,9 @@ public class CommissionController {
 
     @Autowired
     CommissionRepository commissionRepository;
+    
+    @Autowired
+    private CommissionService commissionService;
 
     @GetMapping("/")
     public ResponseEntity<ResponseWrap<List<Commission>>> getAllCarburant() {
@@ -39,7 +44,7 @@ public class CommissionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseWrap<Commission> getCarburantById(@PathVariable long id) {
+    public ResponseWrap<Commission> getCommmissionById(@PathVariable long id) {
         return commissionRepository.findById(id).map(carburant -> ResponseWrap.success(carburant))
                 .orElseGet(() -> ResponseWrap.error("Commission non trouvee"));
     }
@@ -52,8 +57,25 @@ public class CommissionController {
     }
 
     @PostMapping("/")
-    public Commission createCommission(@RequestBody Commission commission) {
-        return commissionRepository.save(commission);
+    public ResponseEntity createCommission(@RequestBody Commission commission)
+            throws Exception {
+        try {
+            if(!commissionService.isRangeValid(commission)){
+                throw new Exception("Intervalle invalide");
+            }
+            return new ResponseEntity<>(ResponseWrap.success(commissionRepository.save(commission)), HttpStatus.OK);
+
+        }catch (Exception e) {
+            if (e instanceof ConstraintViolationException) {
+                ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                Validator validator = factory.getValidator();
+                Set<ConstraintViolation<Commission>> violations = validator.validate(commission);
+                for (ConstraintViolation<Commission> constraintViolation : violations) {
+                    throw new Exception(constraintViolation.getMessageTemplate());
+                }
+            }
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
@@ -62,6 +84,9 @@ public class CommissionController {
         if (commissionRepository.existsById((long) id)) {
             commission.setId((long) id);
             try {
+                if(!commissionService.isRangeValid(commission, (long)id)){
+                    throw new Exception("Intervalle invalide");
+                }
                 return ResponseWrap.success(commissionRepository.saveAndFlush(commission));
             } catch (Exception e) {
                 // TODO: handle exception

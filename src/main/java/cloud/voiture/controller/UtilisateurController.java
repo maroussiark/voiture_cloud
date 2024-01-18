@@ -16,11 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import cloud.voiture.model.ResponseWrap;
 import cloud.voiture.model.Utilisateur;
 import cloud.voiture.repository.UtilisateurRepository;
-import jakarta.servlet.annotation.HttpConstraint;
 
 @RestController
 @RequestMapping("/utilisateur")
-@CrossOrigin(origins = "*",allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UtilisateurController {
 
     @Autowired

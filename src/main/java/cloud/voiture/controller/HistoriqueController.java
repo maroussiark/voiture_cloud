@@ -19,7 +19,7 @@ import cloud.voiture.repository.HistoriqueRepository;
 
 @RestController
 @RequestMapping("/user/historique")
-@CrossOrigin(origins = "*",allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class HistoriqueController {
 
     @Autowired
