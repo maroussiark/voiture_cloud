@@ -27,6 +27,10 @@ public class AnnonceService {
         return annonceRepository.findAll();
     }
 
+    public Optional<Annonce> getAnnonceById(String id) {
+        return annonceRepository.findById(id);
+    }
+
     public List<Annonce> getAnnonceNonValidee() {
         return annonceRepository.findByEtat(0);
     }
@@ -38,6 +42,18 @@ public class AnnonceService {
             throw new Exception("annonce deja accepter ou supprimer");
         }
         annonce.setEtat(5);
+        annonceRepository.save(annonce);
+
+        return annonce;
+    }
+
+    public Annonce refuserAnnonce(String id) throws Exception {
+        Annonce annonce = annonceRepository.findById(id)
+                .orElseThrow(() -> new Exception("id not found"));
+        if (annonce.getEtat() != 0) {
+            throw new Exception("annonce deja refuser ou supprimer");
+        }
+        annonce.setEtat(-5);
         annonceRepository.save(annonce);
 
         return annonce;

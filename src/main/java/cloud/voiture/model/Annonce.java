@@ -1,13 +1,11 @@
 package cloud.voiture.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 
 @Document(collection = "annonce")
 public class Annonce {
@@ -20,10 +18,13 @@ public class Annonce {
     private double prix;
     private Date date;
     private Utilisateur utilisateur;
+    private String description;
+    private List<Photo> photo = new ArrayList<>();
     private int etat;
 
+    
     public Annonce(String id, Marque marque, Categorie categorie, Types type, double prix, Date date,
-    Utilisateur utilisateur, int etat) {
+            Utilisateur utilisateur, String description,List<Photo> photo, int etat) {
         this.id = id;
         this.marque = marque;
         this.categorie = categorie;
@@ -31,10 +32,10 @@ public class Annonce {
         this.prix = prix;
         this.date = date;
         this.utilisateur = utilisateur;
+        this.description = description;
+        this.photo = photo;
         this.etat = etat;
     }
-
-
 
     public Annonce() {
     }
@@ -95,6 +96,32 @@ public class Annonce {
 
     public void setIdutilisateur(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
+    }
+
+
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
+    }
+
+
+
+    public List<Photo> getPhoto() {
+        return photo;
+    }
+
+
+
+    public void setPhoto(List<Photo> photo) {
+        this.photo = photo;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
    
