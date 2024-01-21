@@ -8,4 +8,5 @@ public interface AnnonceRepository extends MongoRepository<Annonce, String>{
     public List<Annonce> findByEtat(int etat);
     public List<Annonce> findByUtilisateurId(int id);
     public List<Annonce> findByIdIn(List<String> ids);
+    public List<Annonce> findByUtilisateurIdNotAndEtat(int id,int etat);
 }

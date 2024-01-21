@@ -23,10 +23,3 @@ INSERT INTO utilisateur VALUES
 (DEFAULT,'admin','admin','admin@gmail.com','now()','1234',1,1),
 (DEFAULT,'user','user','user@gmail.com','now()','1234',0,1);
 
-
-CREATE TABLE favoris(
-    id SERIAL PRIMARY KEY,
-    idUtilisateur INTEGER,
-    idAnnonce VARCHAR(255),
-    FOREIGN KEY(idUtilisateur) REFERENCES utilisateur(id)    
-);

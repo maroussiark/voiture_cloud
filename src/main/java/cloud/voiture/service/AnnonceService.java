@@ -21,6 +21,17 @@ public class AnnonceService {
     private HistoriqueRepository historiqueRepository;
 
     /*
+     * 
+     * PUBLIC METHOD
+     * 
+     */
+
+    // pour l'accueil
+    public List<Annonce> getAnnoncesValidee() {
+        return annonceRepository.findByEtat(5);
+    }
+
+    /*
      * ADMIN METHODS
      */
     public List<Annonce> getAllAnnonce() {
@@ -63,11 +74,13 @@ public class AnnonceService {
      * USER METHODS
      */
 
-    // pour l'accueil
-    public List<Annonce> getAnnoncesValidee() {
-        return annonceRepository.findByEtat(5);
+    // accueil rehefa connecter le olona de ze validee sy ze annonce tsy anazy no alaina
+    public List<Annonce> getAccueilConnectee(int iduser) {
+        return annonceRepository.findByUtilisateurIdNotAndEtat(iduser, 5);
     }
 
+    // historique de ses annonces
+    // rehefa mijery ny historique any le olona de asina etat mitsy le affichage hoe ito efa valider de ito mbola na hoe vendu sy supprimer
     public List<Annonce> getMesAnnonces(int iduser) {
         return annonceRepository.findByUtilisateurId(iduser);
     }
@@ -95,5 +108,8 @@ public class AnnonceService {
         historiqueRepository.save(historique);
         return concerned.get();
     }
+
+    
+
 
 }

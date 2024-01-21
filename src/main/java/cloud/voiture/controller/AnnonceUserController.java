@@ -28,6 +28,18 @@ public class AnnonceUserController {
 
     @Autowired
     private AnnonceFavorisService annonceFavorisService;
+    
+    @GetMapping("accueil/{iduser}")
+    public ResponseEntity<ResponseWrap> getAccueil(@PathVariable int iduser) {
+        try {
+            List<Annonce> annonces = annonceService.getAccueilConnectee(iduser);
+            return ResponseEntity.ok(ResponseWrap.success(annonces));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrap.error("Erreur lors de la récupération des annonces : " + e.getMessage()));
+        }
+    }
 
     @GetMapping("mesannonces/{iduser}")
     public ResponseEntity<ResponseWrap> getMesAnnonces(@PathVariable int iduser) {
@@ -41,7 +53,7 @@ public class AnnonceUserController {
         }
     }
 
-    //tsy mety
+    
     @PostMapping
     public ResponseEntity<Annonce> createAnnonce(@RequestBody Annonce nouvelleAnnonce) {
         Annonce savedAnnonce = annonceService.saveAnnonce(nouvelleAnnonce);
