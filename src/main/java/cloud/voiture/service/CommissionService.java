@@ -75,4 +75,8 @@ public class CommissionService {
         }
         return false;
     }
+
+    public Commission getRecentCommission(double prix){
+        return commissionRepository.findCommissionByValueAndMaxDate(prix);
+    }
 }

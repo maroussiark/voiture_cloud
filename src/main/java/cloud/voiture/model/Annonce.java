@@ -12,35 +12,60 @@ public class Annonce {
 
     @Id
     private String id;
+    private String nomVoiture;
     private Marque marque;
     private Categorie categorie;
     private Types type;
     private double prix;
     private Date date;
     private Utilisateur utilisateur;
+    private Carburant carburant;
     private String description;
     private List<Photo> photo = new ArrayList<>();
     private int etat;
 
     
-    public Annonce(String id, Marque marque, Categorie categorie, Types type, double prix, Date date,
-            Utilisateur utilisateur, String description,List<Photo> photo, int etat) {
+
+    public Annonce(String id, String nomVoiture, Marque marque, Categorie categorie, Types type, double prix, Date date,
+            Utilisateur utilisateur, Carburant carburant, String description, List<Photo> photo, int etat) {
         this.id = id;
+        this.nomVoiture = nomVoiture;
         this.marque = marque;
         this.categorie = categorie;
         this.type = type;
         this.prix = prix;
         this.date = date;
         this.utilisateur = utilisateur;
+        this.carburant = carburant;
         this.description = description;
         this.photo = photo;
         this.etat = etat;
     }
 
+
+
+    public String getNomVoiture() {
+        return nomVoiture;
+    }
+
+
+
+    public void setNomVoiture(String nomVoiture) {
+        this.nomVoiture = nomVoiture;
+    }
+
+
     public Annonce() {
     }
 
   
+    public Carburant getCarburant() {
+        return carburant;
+    }
+
+    public void setCarburant(Carburant carburant) {
+        this.carburant = carburant;
+    }
 
     public String getId() {
         return id;

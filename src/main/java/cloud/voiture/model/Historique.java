@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -14,16 +16,24 @@ public class Historique {
     int idvendeur;
     int idacheteur;
     String idannonce;
+    double commission;
+    Date date;
 
-    public Historique() {
-    }
-
-    public Historique(Long id, int idvendeur, int idacheteur, String idannonce) {
+    public Historique(Long id, int idvendeur, int idacheteur, String idannonce, double commission, Date date) {
         this.id = id;
         this.idvendeur = idvendeur;
         this.idacheteur = idacheteur;
         this.idannonce = idannonce;
+        this.commission = commission;
+        this.date = date;
     }
+
+
+
+    public Historique() {
+    }
+
+    
 
     public Long getId() {
         return this.id;
@@ -101,6 +111,30 @@ public class Historique {
             ", idacheteur='" + getIdacheteur() + "'" +
             ", idannonce='" + getIdannonce() + "'" +
             "}";
+    }
+
+
+
+    public double getCommission() {
+        return commission;
+    }
+
+
+
+    public void setCommission(double commission) {
+        this.commission = commission;
+    }
+
+
+
+    public Date getDate() {
+        return date;
+    }
+
+
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     

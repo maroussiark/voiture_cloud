@@ -37,8 +37,10 @@ public class JwtUtil {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
         claims.put("firstName", user.getNom());
         claims.put("lastName", user.getPrenom());
-
+        claims.put("iduser", user.getId());
         claims.put("role", user.getRole());
+
+        // System.out.println("CLAIM 0 "+claims.toString());
         
         Date tokenCreateTime = new Date();
         Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
@@ -94,7 +96,7 @@ public class JwtUtil {
     }
 
     public List<String> getRoles(Claims claims) {
-        return (List<String>) claims.get("roles");
+        return (List<String>) claims.get("role");
     }
 
 }

@@ -2,29 +2,21 @@ package cloud.voiture.model;
 
 public class Photo {
 
-    private String data;
-    private String type;
-
+    private String link;
     
     public Photo() {
     }
 
-    public Photo(String data, String type) {
-        this.data = data;
-        this.type = type;
+    public Photo(String link) {
+        this.link = link;
     }
-    
-    public String getData() {
-        return data;
+
+    public String getLink() {
+        return link;
     }
-    public void setData(String data) {
-        this.data = data;
-    }
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type = type;
+
+    public void setLink(String link) {
+        this.link = link;
     }
     
 }

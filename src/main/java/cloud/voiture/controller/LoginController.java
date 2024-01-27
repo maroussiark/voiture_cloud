@@ -24,6 +24,7 @@ import cloud.voiture.model.Utilisateur;
 import cloud.voiture.model.request.LoginReq;
 import cloud.voiture.model.response.ErrorRes;
 import cloud.voiture.model.response.LoginRes;
+import cloud.voiture.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -35,9 +36,12 @@ public class LoginController {
 
     private JwtUtil jwtUtil;
 
-    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    private final UtilisateurRepository utilisateurRepository;
+
+    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,UtilisateurRepository utilisateurRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     @GetMapping("/")
@@ -53,10 +57,13 @@ public class LoginController {
                     .authenticate(new UsernamePasswordAuthenticationToken(loginReq.getEmail(),
                             loginReq.getPassword()));
             String email = authentication.getName();
-            Utilisateur user = new Utilisateur(email, "");
+            
+            // Utilisateur user = new Utilisateur(email, "");
+
+            Utilisateur user = utilisateurRepository.findByEmail(email);
             String role = ((List<? extends GrantedAuthority>) authentication.getAuthorities()).get(0).getAuthority();
-            user.setRole(role);
-            System.out.println(role);
+            // user.setRole(role);
+            // System.out.println(user.getId());
             String token = jwtUtil.createToken(user);
             LoginRes loginRes = new LoginRes(email, token);
 

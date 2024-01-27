@@ -10,6 +10,11 @@ public class AnnonceFavoris {
     private String idannonce;
     private int idutilisateur;
     
+    
+
+    public AnnonceFavoris() {
+    }
+
     public AnnonceFavoris(String id, String idannonce, int idutilisateur) {
         this.id = id;
         this.idannonce = idannonce;

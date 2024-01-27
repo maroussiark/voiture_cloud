@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,7 @@ import cloud.voiture.model.ResponseWrap;
 import cloud.voiture.repository.CarburantRepository;
 
 @RestController
-@RequestMapping("/admin/carburant")
+@RequestMapping("/carburant")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CarburantController {
     
@@ -32,22 +33,26 @@ public class CarburantController {
         return new ResponseEntity<>(ResponseWrap.success(carburantRepository.findAll()),HttpStatus.OK);
     }
 
+    @Secured({"ROLE_ADMIN"})
     @GetMapping("/{id}")
     public ResponseWrap<Carburant> getCarburantById(@PathVariable long id) {
         return carburantRepository.findById(id).map(carburant -> ResponseWrap.success(carburant))
                 .orElseGet(() -> ResponseWrap.error("Carburant non trouvee"));
     }
 
+    @Secured({"ROLE_ADMIN"})
     @DeleteMapping("/{id}")
     public void deleteCarburant(@PathVariable long id) {
         carburantRepository.deleteById(id);
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PostMapping("/")
     public Carburant createCarburant(@RequestBody Carburant carburant) {
         return carburantRepository.save(carburant);
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PutMapping("/{id}")
     public ResponseWrap<Carburant> updateCarburant(@RequestBody Carburant carburant, @PathVariable int id)
             throws Exception {

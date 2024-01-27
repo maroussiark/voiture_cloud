@@ -1,15 +1,20 @@
 package cloud.voiture.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cloud.voiture.authentification.JwtUtil;
 import cloud.voiture.model.Annonce;
 import cloud.voiture.model.Historique;
+import cloud.voiture.model.Photo;
 import cloud.voiture.repository.AnnonceRepository;
 import cloud.voiture.repository.HistoriqueRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class AnnonceService {
@@ -20,6 +25,15 @@ public class AnnonceService {
     @Autowired
     private HistoriqueRepository historiqueRepository;
 
+    @Autowired
+    private ImageUploadService imageUploadService;
+
+    @Autowired
+    private CommissionService commissionService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     /*
      * 
      * PUBLIC METHOD
@@ -29,6 +43,16 @@ public class AnnonceService {
     // pour l'accueil
     public List<Annonce> getAnnoncesValidee() {
         return annonceRepository.findByEtat(5);
+    }
+
+    public int getIdUtilisateurFromJwt(HttpServletRequest request) throws Exception{
+        Claims claims = jwtUtil.resolveClaims(request);
+        // System.out.println("CLAIMS = "+claims.toString());
+        if (claims != null) {
+            return (int) claims.get("iduser");
+        } else {
+            throw new RuntimeException("Utilisateur non authentifié");
+        }
     }
 
     /*
@@ -85,7 +109,10 @@ public class AnnonceService {
         return annonceRepository.findByUtilisateurId(iduser);
     }
 
-    public Annonce saveAnnonce(Annonce nouvelleAnnonce) {
+    public Annonce saveAnnonce(Annonce nouvelleAnnonce,String[] imageBase64) throws Exception{
+
+        List<Photo> urls = imageUploadService.getUrl(imageBase64, nouvelleAnnonce.getUtilisateur().getId());
+        nouvelleAnnonce.setPhoto(urls);
         return annonceRepository.save(nouvelleAnnonce);
     }
 
@@ -96,14 +123,22 @@ public class AnnonceService {
         if(concerned.isEmpty()){
             throw new Exception("annonce inexistante");
         }
-
-        concerned.get().setEtat(10);
-        annonceRepository.save(concerned.get());
+        if(concerned.get().getEtat() != 5){
+            throw new Exception("l'etat de l'annonce ne permet pas de la vendre (supprimee/non validee/vendu/)");
+        }
 
         Historique historique = new Historique();
         historique.setIdacheteur(idacheteur);
         historique.setIdvendeur(idvendeur);
         historique.setIdannonce(idannonce);
+        historique.setDate(new Date());
+
+        double prixAnnonce = concerned.get().getPrix();
+        double commissionValeur = prixAnnonce * commissionService.getRecentCommission(prixAnnonce).getValeur() / 100;
+        historique.setCommission(commissionValeur);
+
+        concerned.get().setEtat(10);
+        annonceRepository.save(concerned.get());
 
         historiqueRepository.save(historique);
         return concerned.get();

@@ -45,15 +45,6 @@ CREATE TABLE utilisateur(
     actif INTEGER
 );
 
-CREATE TABLE historique(
-    id SERIAL PRIMARY KEY,
-    idvendeur INTEGER,
-    idacheteur INTEGER,
-    idannonce VARCHAR(255),
-    FOREIGN KEY(idvendeur) REFERENCES utilisateur(id),
-    FOREIGN KEY(idacheteur) REFERENCES utilisateur(id)
-);
-
 CREATE TABLE commission(
     id SERIAL PRIMARY KEY,
     min DECIMAL,
@@ -62,3 +53,15 @@ CREATE TABLE commission(
     dates DATE,
     etat INTEGER
 );
+
+CREATE TABLE historique(
+    id SERIAL PRIMARY KEY,
+    idvendeur INTEGER,
+    idacheteur INTEGER,
+    idannonce VARCHAR(255),
+    commission DECIMAL, -- tsy pourcentage intsony fa efa le valeur
+    date TIMESTAMP,
+    FOREIGN KEY(idvendeur) REFERENCES utilisateur(id),
+    FOREIGN KEY(idacheteur) REFERENCES utilisateur(id)
+);
+

@@ -14,4 +14,5 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Intege
     @Query("SELECT u FROM Utilisateur u WHERE u.email = :email")
     public Utilisateur findByEmail(@Param("email") String email);
     public List<Utilisateur> findByActif(int actif);
+    public long countByActifAndIsadmin(int actif, int isAdmin);
 }

@@ -37,13 +37,31 @@ public class AnnonceFavorisService {
         return annonceRepository.findByIdIn(annonceIds);
     }
 
-    public AnnonceFavoris saveAnnonceFavoris(AnnonceFavoris annonceFavoris) {
-        Optional<Annonce> annonce = annonceRepository.findById(annonceFavoris.getIdannonce());
+    public AnnonceFavoris saveAnnonceFavoris(String idannonce,int iduser) throws Exception {
+        Optional<AnnonceFavoris> existingFavoris = annonceFavorisRepository.findByIdannonceAndIdutilisateur(idannonce, iduser);
+        if(existingFavoris.isPresent()){
+            throw new Exception("Cette annonce "+idannonce+" est deja en favoris");
+        }
+
+        Optional<Annonce> annonce = annonceRepository.findById(idannonce);
         
         if (annonce.isPresent()) {
+            AnnonceFavoris annonceFavoris = new AnnonceFavoris();
+            annonceFavoris.setIdannonce(idannonce);
+            annonceFavoris.setIdutilisateur(iduser);
             return annonceFavorisRepository.save(annonceFavoris);
         } else {
-            throw new IllegalArgumentException("Annonce with idannonce " + annonceFavoris.getIdannonce() + " does not exist.");
+            throw new IllegalArgumentException("Annonce with idannonce " +idannonce + " does not exist.");
+        }
+    }
+
+    public void deleteAnnonceFavoris(String idannonce, int idutilisateur) {
+        Optional<AnnonceFavoris> existingFavoris = annonceFavorisRepository.findByIdannonceAndIdutilisateur(idannonce, idutilisateur);
+
+        if (existingFavoris.isPresent()) {
+            annonceFavorisRepository.delete(existingFavoris.get());
+        } else {
+            throw new IllegalArgumentException("Annonce with idannonce " + idannonce + " is not in the favorites for user with id " + idutilisateur);
         }
     }
 

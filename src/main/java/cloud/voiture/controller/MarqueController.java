@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,7 @@ import cloud.voiture.repository.MarqueRepository;
 
 
 @RestController
-@RequestMapping("/admin/marque")
+@RequestMapping("/marque")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MarqueController {
     @Autowired
@@ -31,6 +32,7 @@ public class MarqueController {
         return ResponseWrap.success(marqueRepository.findByEtat(1));
     }
 
+    @Secured({"ROLE_ADMIN"})
     @GetMapping("/{id}")
     public ResponseWrap<Marque> getMarqueById(@PathVariable int id) {
         return marqueRepository.findById(id)
@@ -39,11 +41,13 @@ public class MarqueController {
 
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PostMapping
     public ResponseWrap<Marque> addMarque(@RequestBody Marque marque) {
         return ResponseWrap.success(marqueRepository.save(marque));
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PutMapping("/{id}")
     public ResponseWrap<Marque> updateMarque(@PathVariable int id, @RequestBody Marque marqueModif) {
         if (marqueRepository.existsById(id)) {
@@ -54,6 +58,7 @@ public class MarqueController {
         return ResponseWrap.error("id not found");
     }
 
+    @Secured({"ROLE_ADMIN"})
     @DeleteMapping("/{id}")
     public ResponseWrap<String> deleteMarque(@PathVariable int id) {
         Optional<Marque> optionalMarque = marqueRepository.findById(id);

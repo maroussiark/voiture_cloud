@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,7 @@ import cloud.voiture.repository.PaysRepository;
 
 
 @RestController
-@RequestMapping("/admin/pays")
+@RequestMapping("/pays")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PaysController {
     @Autowired
@@ -31,6 +32,7 @@ public class PaysController {
         return ResponseWrap.success(paysRepository.findByEtat(1));
     }
 
+    @Secured({"ROLE_ADMIN"})
     @GetMapping("/{id}")
     public ResponseWrap<Pays> getPaysById(@PathVariable int id) {
         return paysRepository.findById(id)
@@ -39,11 +41,13 @@ public class PaysController {
 
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PostMapping
     public ResponseWrap<Pays> addPays(@RequestBody Pays pays) {
         return ResponseWrap.success(paysRepository.save(pays));
     }
 
+    @Secured({"ROLE_ADMIN"})
     @PutMapping("/{id}")
     public ResponseWrap<Pays> updatePays(@PathVariable int id, @RequestBody Pays paysModif) {
         if (paysRepository.existsById(id)) {
@@ -54,6 +58,7 @@ public class PaysController {
         return ResponseWrap.error("id not found");
     }
 
+    @Secured({"ROLE_ADMIN"})
     @DeleteMapping("/{id}")
     public ResponseWrap<String> deletePays(@PathVariable int id) {
         Optional<Pays> optionalPays = paysRepository.findById(id);

@@ -2,20 +2,29 @@ package cloud.voiture.controller;
 
 import cloud.voiture.service.AnnonceFavorisService;
 import cloud.voiture.service.AnnonceService;
+import jakarta.servlet.http.HttpServletRequest;
+import cloud.voiture.authentification.JwtUtil;
 import cloud.voiture.model.Annonce;
 import cloud.voiture.model.AnnonceFavoris;
+import cloud.voiture.model.AnnoncePostRequest;
 import cloud.voiture.model.ResponseWrap;
+import cloud.voiture.model.Utilisateur;
+import cloud.voiture.repository.UtilisateurRepository;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,10 +37,15 @@ public class AnnonceUserController {
 
     @Autowired
     private AnnonceFavorisService annonceFavorisService;
+
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
     
-    @GetMapping("accueil/{iduser}")
-    public ResponseEntity<ResponseWrap> getAccueil(@PathVariable int iduser) {
+    @GetMapping("accueil")
+    public ResponseEntity<ResponseWrap> getAccueil(HttpServletRequest request) {
         try {
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
             List<Annonce> annonces = annonceService.getAccueilConnectee(iduser);
             return ResponseEntity.ok(ResponseWrap.success(annonces));
             
@@ -41,9 +55,11 @@ public class AnnonceUserController {
         }
     }
 
-    @GetMapping("mesannonces/{iduser}")
-    public ResponseEntity<ResponseWrap> getMesAnnonces(@PathVariable int iduser) {
+    @GetMapping("mesannonces")
+    public ResponseEntity<ResponseWrap> getMesAnnonces(HttpServletRequest request) {
         try {
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
             List<Annonce> annonces = annonceService.getMesAnnonces(iduser);
             return ResponseEntity.ok(ResponseWrap.success(annonces));
             
@@ -55,9 +71,20 @@ public class AnnonceUserController {
 
     
     @PostMapping
-    public ResponseEntity<Annonce> createAnnonce(@RequestBody Annonce nouvelleAnnonce) {
-        Annonce savedAnnonce = annonceService.saveAnnonce(nouvelleAnnonce);
-        return new ResponseEntity<>(savedAnnonce, HttpStatus.CREATED);
+    public ResponseEntity<ResponseWrap> createAnnonce(@RequestBody AnnoncePostRequest annoncePost,HttpServletRequest request) {
+        try {
+            if(annoncePost.getAnnonce().getUtilisateur() == null){
+                int iduser = annonceService.getIdUtilisateurFromJwt(request);
+                Optional<Utilisateur> utilisateur = utilisateurRepository.findById(iduser);
+                annoncePost.getAnnonce().setUtilisateur(utilisateur.get());
+                
+            }
+            Annonce savedAnnonce = annonceService.saveAnnonce(annoncePost.getAnnonce(),annoncePost.getImage());
+            return ResponseEntity.ok(ResponseWrap.success(savedAnnonce));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ResponseWrap.error(e.getMessage()));
+        }
+        
     }
 
 
@@ -66,9 +93,11 @@ public class AnnonceUserController {
      * 
      */
    
-    @GetMapping("mesannonces-favoris/{iduser}")
-    public ResponseEntity<ResponseWrap> getMesAnnoncesFavoris(@PathVariable int iduser) {
+    @GetMapping("mesannonces-favoris")
+    public ResponseEntity<ResponseWrap> getMesAnnoncesFavoris(HttpServletRequest request) {
         try {
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
             List<Annonce> annonces = annonceFavorisService.getAnnoncesFavoris(iduser);
             return ResponseEntity.ok(ResponseWrap.success(annonces));
             
@@ -78,10 +107,12 @@ public class AnnonceUserController {
         }
     }
 
-    @PostMapping("/favoris")
-    public ResponseEntity<ResponseWrap> saveAnnonceFavoris(@RequestBody AnnonceFavoris nouvelleAnnonceFavoris) {
+    @PostMapping("/favoris/ajouter/{idannonce}")
+    public ResponseEntity<ResponseWrap> saveAnnonceFavoris(@PathVariable String idannonce,HttpServletRequest request) {
         try {
-            AnnonceFavoris savedAnnonceFavoris = annonceFavorisService.saveAnnonceFavoris(nouvelleAnnonceFavoris);
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
+            AnnonceFavoris savedAnnonceFavoris = annonceFavorisService.saveAnnonceFavoris(idannonce,iduser);
             return ResponseEntity.ok(ResponseWrap.success(savedAnnonceFavoris));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -89,9 +120,24 @@ public class AnnonceUserController {
         }
     }
 
-    @PostMapping("/vendre/{annonceId}/vendeur/{vendeurId}/acheteur/{acheteurId}")
-    public ResponseEntity<ResponseWrap> changerStatusToSold(@PathVariable String annonceId,@PathVariable int vendeurId,@PathVariable int acheteurId) {
+    @DeleteMapping("/favoris/supprimer/{idannonce}")
+    public ResponseEntity<ResponseWrap> deleteAnnonceFavoris(@PathVariable String idannonce,HttpServletRequest request) {
         try {
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
+            annonceFavorisService.deleteAnnonceFavoris(idannonce,iduser);
+            return ResponseEntity.ok(ResponseWrap.success("supprimer du favoris avec succes"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrap.error("Erreur lors de la suppression de l'annonce favoris : " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/vendre/{annonceId}/acheteur/{acheteurId}")
+    public ResponseEntity<ResponseWrap> changerStatusToSold(@PathVariable String annonceId,@PathVariable int acheteurId,HttpServletRequest request) {
+        try {
+            int vendeurId = annonceService.getIdUtilisateurFromJwt(request);
+
             Annonce vendu = annonceService.changeStatusToSold(vendeurId, acheteurId, annonceId);
             return ResponseEntity.ok(ResponseWrap.success(vendu));
         } catch (Exception e) {
