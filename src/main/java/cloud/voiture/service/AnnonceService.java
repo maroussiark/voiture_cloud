@@ -116,6 +116,15 @@ public class AnnonceService {
         return annonceRepository.save(nouvelleAnnonce);
     }
 
+    public Annonce supprimerMonAnnonce(int iduser,String idannonce) throws Exception{
+        Optional<Annonce> annonce = annonceRepository.findByUtilisateurIdAndId(iduser, idannonce);
+        if(annonce.isPresent() == false){
+            throw new Exception("annonce inexistante");
+        }
+        annonce.get().setEtat(-10);
+        return annonceRepository.save(annonce.get());
+    }
+
     public Annonce changeStatusToSold(int idvendeur,int idacheteur,String idannonce) throws Exception{
 
         Optional<Annonce> concerned = annonceRepository.findById(idannonce);

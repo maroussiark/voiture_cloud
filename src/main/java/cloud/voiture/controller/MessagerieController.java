@@ -15,11 +15,15 @@ import cloud.voiture.model.messagerie.Messagerie;
 import cloud.voiture.model.request.MessageReq;
 import cloud.voiture.model.response.ErrorRes;
 import cloud.voiture.repository.MessagerieRepository;
+import cloud.voiture.service.AnnonceService;
 import cloud.voiture.service.MessagerieService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin(origins = "*",allowedHeaders = "*")
 public class MessagerieController {
+    @Autowired
+    AnnonceService annonceService;
     @Autowired
     MessagerieRepository messagerieRepository;
     @Autowired
@@ -37,17 +41,19 @@ public class MessagerieController {
         }
     }
 
-    @GetMapping("/messageries/{id}")
-    public Iterable<Messagerie> getMessageries(@PathVariable Integer id) {
+    @GetMapping("/messageries/mes-messages")
+    public Iterable<Messagerie> getMessageries(HttpServletRequest request) throws Exception {
         System.out.println("All messages for user");
-        return messagerieService.getMessageries(id);
+        int iduser = annonceService.getIdUtilisateurFromJwt(request);
+        return messagerieService.getMessageries(iduser);
     }
 
     @PostMapping("/messageries")
-    public ResponseEntity newMessagerie(@RequestBody MessageReq newMessage) {
+    public ResponseEntity newMessagerie(@RequestBody MessageReq newMessage,HttpServletRequest request) {
         try {
+            int idsender = annonceService.getIdUtilisateurFromJwt(request);
             newMessage.setDateMessage(new Date());
-            messagerieService.ajouterMessage(newMessage.getIdSender(),
+            messagerieService.ajouterMessage(idsender,
             newMessage.getIdReceiver(),
             newMessage.getContenu(), newMessage.getDateMessage());
             return ResponseEntity.ok("Created");

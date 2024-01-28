@@ -3,6 +3,7 @@ package cloud.voiture.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ public class UtilisateurController {
     UtilisateurRepository utilisateurRepository;
 
     
-    @GetMapping("/")
+    @GetMapping
     public ResponseWrap<List<Utilisateur>> getAllUtilisateurs() {
         return ResponseWrap.success(utilisateurRepository.findByActif(1));
     }
@@ -44,8 +45,15 @@ public class UtilisateurController {
         utilisateurRepository.saveAndFlush(utilisateur);
     }
 
-    @PostMapping("/")
+    @Secured({"ROLE_ADMIN"})
+    @PostMapping
     public Utilisateur createUtilisateur(@RequestBody Utilisateur utilisateur) {
+        return utilisateurRepository.save(utilisateur);
+    }
+
+    @PostMapping("/inscription")
+    public Utilisateur inscription(@RequestBody Utilisateur utilisateur) {
+        utilisateur.setisAdmin(0);
         return utilisateurRepository.save(utilisateur);
     }
 

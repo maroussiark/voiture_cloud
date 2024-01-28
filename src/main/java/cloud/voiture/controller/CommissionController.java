@@ -38,7 +38,7 @@ public class CommissionController {
     @Autowired
     private CommissionService commissionService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<ResponseWrap<List<Commission>>> getAllCarburant() {
         return new ResponseEntity<>(ResponseWrap.success(commissionRepository.findAll()), HttpStatus.OK);
     }
@@ -50,18 +50,18 @@ public class CommissionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCommission(@PathVariable long id) {
+    public ResponseWrap<String> deleteCommission(@PathVariable long id) {
         commissionRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseWrap.success("deleted successfully");
 
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity createCommission(@RequestBody Commission commission)
             throws Exception {
         try {
             if(!commissionService.isRangeValid(commission)){
-                throw new Exception("Intervalle invalide");
+                throw new Exception("Intervalle deja existante");
             }
             return new ResponseEntity<>(ResponseWrap.success(commissionRepository.save(commission)), HttpStatus.OK);
 

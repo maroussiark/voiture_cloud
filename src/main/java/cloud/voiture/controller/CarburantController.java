@@ -28,7 +28,7 @@ public class CarburantController {
     @Autowired
     CarburantRepository carburantRepository;
     
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<ResponseWrap<List<Carburant>>> getAllCarburant() {
         return new ResponseEntity<>(ResponseWrap.success(carburantRepository.findAll()),HttpStatus.OK);
     }
@@ -42,12 +42,13 @@ public class CarburantController {
 
     @Secured({"ROLE_ADMIN"})
     @DeleteMapping("/{id}")
-    public void deleteCarburant(@PathVariable long id) {
+    public ResponseWrap<String> deleteCarburant(@PathVariable long id) {
         carburantRepository.deleteById(id);
+        return ResponseWrap.success("deleted successfully");
     }
 
     @Secured({"ROLE_ADMIN"})
-    @PostMapping("/")
+    @PostMapping
     public Carburant createCarburant(@RequestBody Carburant carburant) {
         return carburantRepository.save(carburant);
     }

@@ -93,7 +93,7 @@ public class AnnonceUserController {
      * 
      */
    
-    @GetMapping("mesannonces-favoris")
+    @GetMapping("/favoris")
     public ResponseEntity<ResponseWrap> getMesAnnoncesFavoris(HttpServletRequest request) {
         try {
             int iduser = annonceService.getIdUtilisateurFromJwt(request);
@@ -142,7 +142,20 @@ public class AnnonceUserController {
             return ResponseEntity.ok(ResponseWrap.success(vendu));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ResponseWrap.error("Erreur lors de la sauvegarde de l'annonce favoris : " + e.getMessage()));
+                    .body(ResponseWrap.error(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/supprimer/{annonceId}")
+    public ResponseEntity<ResponseWrap> supprmerMonAnnonce(@PathVariable String annonceId,HttpServletRequest request) {
+        try {
+            int iduser = annonceService.getIdUtilisateurFromJwt(request);
+
+            annonceService.supprimerMonAnnonce(iduser, annonceId);
+            return ResponseEntity.ok(ResponseWrap.success("annonce supprimer avec succes"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseWrap.error("Erreur lors de la supperssion de l'annonce  : " + e.getMessage()));
         }
     }
 
