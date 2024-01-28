@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import cloud.voiture.authentification.JwtUtil;
 import cloud.voiture.model.Annonce;
 import cloud.voiture.model.Historique;
 import cloud.voiture.model.Photo;
+import cloud.voiture.model.request.FiltreAnnonceReq;
 import cloud.voiture.repository.AnnonceRepository;
 import cloud.voiture.repository.HistoriqueRepository;
 import io.jsonwebtoken.Claims;
@@ -34,6 +37,9 @@ public class AnnonceService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     /*
      * 
      * PUBLIC METHOD
@@ -45,7 +51,7 @@ public class AnnonceService {
         return annonceRepository.findByEtat(5);
     }
 
-    public int getIdUtilisateurFromJwt(HttpServletRequest request) throws Exception{
+    public int getIdUtilisateurFromJwt(HttpServletRequest request) throws Exception {
         Claims claims = jwtUtil.resolveClaims(request);
         // System.out.println("CLAIMS = "+claims.toString());
         if (claims != null) {
@@ -98,41 +104,43 @@ public class AnnonceService {
      * USER METHODS
      */
 
-    // accueil rehefa connecter le olona de ze validee sy ze annonce tsy anazy no alaina
+    // accueil rehefa connecter le olona de ze validee sy ze annonce tsy anazy no
+    // alaina
     public List<Annonce> getAccueilConnectee(int iduser) {
         return annonceRepository.findByUtilisateurIdNotAndEtat(iduser, 5);
     }
 
     // historique de ses annonces
-    // rehefa mijery ny historique any le olona de asina etat mitsy le affichage hoe ito efa valider de ito mbola na hoe vendu sy supprimer
+    // rehefa mijery ny historique any le olona de asina etat mitsy le affichage hoe
+    // ito efa valider de ito mbola na hoe vendu sy supprimer
     public List<Annonce> getMesAnnonces(int iduser) {
         return annonceRepository.findByUtilisateurId(iduser);
     }
 
-    public Annonce saveAnnonce(Annonce nouvelleAnnonce,String[] imageBase64) throws Exception{
+    public Annonce saveAnnonce(Annonce nouvelleAnnonce, String[] imageBase64) throws Exception {
 
         List<Photo> urls = imageUploadService.getUrl(imageBase64, nouvelleAnnonce.getUtilisateur().getId());
         nouvelleAnnonce.setPhoto(urls);
         return annonceRepository.save(nouvelleAnnonce);
     }
 
-    public Annonce supprimerMonAnnonce(int iduser,String idannonce) throws Exception{
+    public Annonce supprimerMonAnnonce(int iduser, String idannonce) throws Exception {
         Optional<Annonce> annonce = annonceRepository.findByUtilisateurIdAndId(iduser, idannonce);
-        if(annonce.isPresent() == false){
+        if (annonce.isPresent() == false) {
             throw new Exception("annonce inexistante");
         }
         annonce.get().setEtat(-10);
         return annonceRepository.save(annonce.get());
     }
 
-    public Annonce changeStatusToSold(int idvendeur,int idacheteur,String idannonce) throws Exception{
+    public Annonce changeStatusToSold(int idvendeur, int idacheteur, String idannonce) throws Exception {
 
         Optional<Annonce> concerned = annonceRepository.findById(idannonce);
 
-        if(concerned.isEmpty()){
+        if (concerned.isEmpty()) {
             throw new Exception("annonce inexistante");
         }
-        if(concerned.get().getEtat() != 5){
+        if (concerned.get().getEtat() != 5) {
             throw new Exception("l'etat de l'annonce ne permet pas de la vendre (supprimee/non validee/vendu/)");
         }
 
@@ -153,7 +161,10 @@ public class AnnonceService {
         return concerned.get();
     }
 
-    
-
+    public List<Annonce> filtrerAnnonces(FiltreAnnonceReq filtreAnnonceReq) {
+        Query query = filtreAnnonceReq.giveQueryFilter();
+        System.out.println(query.toString());
+        return this.mongoTemplate.find(query, Annonce.class);
+    }
 
 }

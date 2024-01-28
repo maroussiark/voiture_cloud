@@ -37,8 +37,8 @@ public class ImageUploadService {
 
     private void initializeFirebaseApp() {
         try {
-            
-            if(FirebaseApp.getApps().isEmpty()){
+
+            if (FirebaseApp.getApps().isEmpty()) {
                 Resource resource = new ClassPathResource("firebase.json");
                 InputStream serviceAccount = resource.getInputStream();
 
@@ -49,42 +49,40 @@ public class ImageUploadService {
 
                 FirebaseApp.initializeApp(options);
             }
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     private File[] convertToFile(String[] base64, int iduser) throws Exception {
         File[] imageFiles = new File[base64.length];
-    
+
         for (int i = 0; i < base64.length; i++) {
             String base64Image = base64[i];
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-    
+
             String uniqueId = UUID.randomUUID().toString();
-            
-            String fileName ="user_"+ iduser +"_image_" + uniqueId + ".jpg";
-            
+
+            String fileName = "user_" + iduser + "_image_" + uniqueId + ".jpg";
+
             File imageFile = new File(fileName);
-            
+
             // System.out.println("filename "+imageFile.getName());
-            
+
             try (FileOutputStream fos = new FileOutputStream(imageFile)) {
                 fos.write(imageBytes);
             }
             imageFiles[i] = imageFile;
         }
-    
+
         return imageFiles;
     }
-    
 
     private List<String> uploadToFirebaseStorage(File[] imageFiles) throws Exception {
         try {
             Bucket bucket = StorageClient.getInstance().bucket();
             List<String> urls = new ArrayList<>();
-
 
             for (int i = 0; i < imageFiles.length; i++) {
                 Path filePath = imageFiles[i].toPath();
@@ -95,9 +93,10 @@ public class ImageUploadService {
                 bucket.create(objectName, bytes);
 
                 // Construire l'URL du fichier
-                String fileUrl = "https://firebasestorage.googleapis.com/v0/b/" + bucket.getName() + "/o/" + objectName+"?alt=media";
+                String fileUrl = "https://firebasestorage.googleapis.com/v0/b/" + bucket.getName() + "/o/" + objectName
+                        + "?alt=media";
                 urls.add(fileUrl);
-            
+
             }
 
             return urls;
@@ -107,10 +106,10 @@ public class ImageUploadService {
             for (int j = 0; j < imageFiles.length; j++) {
                 if (imageFiles[j].exists()) {
                     imageFiles[j].delete();
-                }   
+                }
             }
         }
-        
+
     }
 
     public List<Photo> getUrl(String[] base64, int iduser) throws Exception {

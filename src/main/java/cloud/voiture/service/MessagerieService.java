@@ -60,8 +60,10 @@ public class MessagerieService {
         Optional<Utilisateur> sender = this.utilisateurRepository.findById(idSender);
         Optional<Utilisateur> receiver = this.utilisateurRepository.findById(idReceiver);
         try {
-            Participant participant1 = new Participant(sender.get().getId(), sender.get().getNom());
-            Participant participant2 = new Participant(receiver.get().getId(), receiver.get().getNom());
+            Participant participant1 = new Participant(sender.get().getId(),
+                    sender.get().getNom() + " " + sender.get().getPrenom());
+            Participant participant2 = new Participant(receiver.get().getId(),
+                    receiver.get().getNom() + " " + sender.get().getPrenom());
 
             nouvelleMessagerie.setParticipants(Arrays.asList(participant1, participant2).toArray(new Participant[0]));
 
@@ -83,5 +85,25 @@ public class MessagerieService {
                 Query.query(Criteria.where("participants.id_utilisateur").all(
                         idSender, idReceiver)),
                 Messagerie.class);
+    }
+
+    public void supprimerMessage(int idSender, int idReceiver, Date dateMessage, String contenuMessage) {
+        Messagerie messagerie = trouverMessagerie(idSender, idReceiver);
+
+        if (messagerie != null) {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("participants.id_utilisateur").all(
+                    idSender, idReceiver));
+            query.addCriteria(Criteria.where("messages.id_utilisateur").is(idSender)
+                    .and("messages.date").is(dateMessage)
+                    .and("messages.contenu").is(contenuMessage));
+
+            Update update = new Update().pull("messages",
+                    Query.query(Criteria.where("id_utilisateur").is(idSender)
+                            .and("date").is(dateMessage)
+                            .and("contenu").is(contenuMessage)));
+
+            this.mongoTemplate.updateFirst(query, update, Messagerie.class);
+        }
     }
 }
