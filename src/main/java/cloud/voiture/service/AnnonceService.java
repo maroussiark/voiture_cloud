@@ -135,10 +135,10 @@ public class AnnonceService {
 
     public Annonce changeStatusToSold(int idvendeur, int idacheteur, String idannonce) throws Exception {
 
-        Optional<Annonce> concerned = annonceRepository.findById(idannonce);
+        Optional<Annonce> concerned = annonceRepository.findByUtilisateurIdAndId(idvendeur, idannonce);
 
         if (concerned.isEmpty()) {
-            throw new Exception("annonce inexistante");
+            throw new Exception("annonce inexistante ou n'appartenant pas au vendeur");
         }
         if (concerned.get().getEtat() != 5) {
             throw new Exception("l'etat de l'annonce ne permet pas de la vendre (supprimee/non validee/vendu/)");

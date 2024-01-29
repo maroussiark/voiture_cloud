@@ -59,11 +59,11 @@ public class MessagerieController {
         try {
             int idsender = annonceService.getIdUtilisateurFromJwt(request);
             newMessage.setDateMessage(new Date());
-            // messagerieService.ajouterMessage(idsender,
-            // newMessage.getIdReceiver(),
-            // newMessage.getContenu(), newMessage.getDateMessage());
-            System.out.println(firebasePublisherService.postToClient(newMessage.getContenu(),
-                    firebasePublisherService.getDevicesOfClient(newMessage.getIdReceiver()).getToken()));
+            messagerieService.ajouterMessage(idsender,
+            newMessage.getIdReceiver(),
+            newMessage.getContenu(), newMessage.getDateMessage());
+            // System.out.println(firebasePublisherService.postToClient(newMessage.getContenu(),
+            //         firebasePublisherService.getDevicesOfClient(newMessage.getIdReceiver()).getToken()));
             return ResponseEntity.ok("Created");
         } catch (Exception e) {
             e.printStackTrace();
