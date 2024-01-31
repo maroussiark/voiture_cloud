@@ -39,6 +39,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Map<String, Object> errorDetails = new HashMap<>();
         try {
+
+            if("/rest/auth/login".equals(request.getRequestURI()) && "POST".equals(request.getMethod())){
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String accessToken = jwtUtil.resolveToken(request);
             if (accessToken == null) {
                 filterChain.doFilter(request, response);
