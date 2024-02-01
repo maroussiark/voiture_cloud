@@ -40,7 +40,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         Map<String, Object> errorDetails = new HashMap<>();
         try {
 
+            // System.out.println("URI "+request.getRequestURI());
+
             if("/rest/auth/login".equals(request.getRequestURI()) && "POST".equals(request.getMethod())){
+                filterChain.doFilter(request, response);
+                return;
+            }
+            if("/utilisateur/inscription".equals(request.getRequestURI()) && "POST".equals(request.getMethod())){
+                filterChain.doFilter(request, response);
+                return;
+            }
+            if("/public/annonce/accueil".equals(request.getRequestURI()) && "GET".equals(request.getMethod())){
                 filterChain.doFilter(request, response);
                 return;
             }
